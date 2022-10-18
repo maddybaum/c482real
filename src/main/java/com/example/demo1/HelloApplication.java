@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-
+/**This is the class that will start my application by creating the starting scene by loading my main.fxml file*/
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
@@ -18,7 +18,6 @@ public class HelloApplication extends Application {
     }
 
     public static void main(String[] args) {
-        Part catToy = new Outsourced(1, "Cat tunnel", 10, 2.00, 5, 7, "Amazon");
         launch();
     }
 }

@@ -17,8 +17,9 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**This is a class that will be used when the user wants to modify a product*/
 public class modifyProductController implements Initializable {
-    //Grab the product selected from the main screen;
+    /**The selected product to modify will be called prodToModify*/
     Product prodToModify;
 
     private ObservableList<Part> selectedOptions = FXCollections.observableArrayList();
@@ -44,12 +45,27 @@ public class modifyProductController implements Initializable {
     public Button modProdRemoveBtn;
     public Button modProdSaveBtn;
 
+    /**Method to add a part to the selectedPartsTable on the bottom of the modify product form*/
     public void prodAdd(ActionEvent actionEvent) {
         Part partToAdd = (Part)modPartsTable.getSelectionModel().getSelectedItem();
         selectedOptions.add(partToAdd);
         selectedPartsTable.setItems(selectedOptions);
     }
 
+    /**Set the modify product input fields to the fields of the product that was selected*/
+    public void setProdInputs(Product product){
+        modIDInput.setText(Integer.toString(product.getId()));
+        modNameInput.setText(product.getName());
+        modPriceInput.setText(Double.toString(product.getPrice()));
+        modInvInput.setText(Integer.toString(product.getStock()));
+        modMaxInput.setText(Integer.toString(product.getMax()));
+        modMinInput.setText(Integer.toString(product.getMin()));
+
+        //fill the lower table with the associated parts for the product selected
+        selectedPartsTable.setItems(product.getAllAssociatedParts());
+
+    }
+    /**this is a method so that when people are modifying a product they can remove some of the previously selected parts*/
     public void modRemove(ActionEvent actionEvent) {
         Part partToDelete = (Part)selectedPartsTable.getSelectionModel().getSelectedItem();
 
@@ -67,7 +83,7 @@ public class modifyProductController implements Initializable {
         }
 
     }
-
+/**Method so that when users finish modifying a product it will be saved*/
     public void modSave(ActionEvent actionEvent) throws IOException {
         try {
             //get the ID of the selected part
@@ -113,7 +129,7 @@ public class modifyProductController implements Initializable {
     }
 }
 
-
+/**Method that brings the user back to the main screen if they press cancel*/
     public void modCancel(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
         Parent mainModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));
@@ -126,7 +142,7 @@ public class modifyProductController implements Initializable {
         //show the modal
         modal.show();
     }
-
+/**Initialize method to import values into the tables*/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         modPartsTable.setItems(Inventory.getAllParts());
@@ -144,7 +160,7 @@ public class modifyProductController implements Initializable {
         //Use handoff method to grab selected product from main screen
         prodToModify = MainScreenController.getProductToModify();
     }
-
+/**Method so that users are able to search for a product*/
     public void searchForProd(ActionEvent actionEvent) {
         //Grab text that was typed in the search bar
         String searchedProduct = modProdSearch.getText();

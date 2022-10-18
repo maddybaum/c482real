@@ -16,10 +16,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
+/**This is the controller for when a user has clicked to add a product and opened the addProductForm fxml file*/
 public class addProductController implements Initializable {
     //Use an observable list to hold the items that the user has selected for the list
     private ObservableList<Part> selectedPartList = FXCollections.observableArrayList();
+
+    private ObservableList<Part> associatedPartsList = FXCollections.observableArrayList();
+
     public TextField addIDInput;
     public TextField addNameInput;
     public TextField addInvInput;
@@ -41,7 +44,7 @@ public class addProductController implements Initializable {
     public Button addProdRemoveBtn;
     public Button addProdSaveBtn;
     public Button addProdCancelBtn;
-
+/**This method searched for a part based on what the user has type in*/
     public void searchForPart(ActionEvent actionEvent) {
         //Grab text that was typed in search bar
         String searchedPart = addProdSearch.getText();
@@ -65,15 +68,15 @@ public class addProductController implements Initializable {
             Optional<ButtonType> response = noSearch.showAndWait();
         }
     }
-
+/**Method for adding a part and displaying it in the table*/
     public void addPart(ActionEvent actionEvent) {
         //Grab the currently selected part
         Part partToAdd = (Part) partTableOptions.getSelectionModel().getSelectedItem();
-        selectedPartList.add(partToAdd);
-        //Display the list of parts in the table
-        partTableSelected.setItems(selectedPartList);
-    }
+        associatedPartsList.add(partToAdd);
 
+        //Display the list of parts in the table
+    }
+/**Method to delete a part if the button is clicked*/
     public void removeProduct(ActionEvent actionEvent) {
         //Grab the selected item from the parts the user has already selected
         Part partToDelete = (Part)partTableSelected.getSelectionModel().getSelectedItem();
@@ -85,11 +88,11 @@ public class addProductController implements Initializable {
             return;
         }
         //Otherwise remove the part to delete
-        selectedPartList.remove(partToDelete);
+        associatedPartsList.remove(partToDelete);
         //Display the list of parts with the selected one removed
-        partTableSelected.setItems(selectedPartList);
-    }
 
+    }
+/**Once the user has filled in the input, this method will allow them to save the new product*/
     public void saveAddProd(ActionEvent actionEvent) {
         try {
             //Using method suggested in webinar to generate a random ID that will not overlap with others
@@ -108,13 +111,14 @@ public class addProductController implements Initializable {
             }
             //Create a new product object with the values the user input
             Product product = new Product(id, name, price, stock, max, min);
+            product.getAllAssociatedParts().addAll(associatedPartsList);
             //Add new product to inventory
             //Loop through the parts and use the addAssocPart method from product to add the parts
-            for(Part part : selectedPartList){
+            /*for(Part part : selectedPartList){
                 product.addAssociatedParts(part);
-            }
+            }*/
             Inventory.addProduct(product);
-            Inventory.getAllProducts();
+            //Inventory.getAllProducts();
 
             //return to main page
             Parent mainModal = FXMLLoader.load(getClass().getResource("main.fxml"));
@@ -128,12 +132,15 @@ public class addProductController implements Initializable {
             modal.show();
         } catch (Exception e) {
             Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setContentText("There was an error adding product");
+            error.setContentText(e.getMessage());
+
+
+            //error.setContentText("There was an error adding product");
             Optional<ButtonType> response = error.showAndWait();
             return;
         }
     }
-
+/**If the user selects cancel, this will bring them back to the main screen*/
     public void addProdCancel(ActionEvent actionEvent) throws IOException {
         Parent mainModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));
         //set new scene with add part modal
@@ -145,7 +152,7 @@ public class addProductController implements Initializable {
         //show the modal
         modal.show();
     }
-
+/**Sets the values in the 2 tables on the addProduct page*/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Put all of the parts that have been added in the options table
@@ -157,10 +164,11 @@ public class addProductController implements Initializable {
         optionsInventoryLvl.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
         //add the parts that have been selected to the selected parts table
-        partTableSelected.setItems(selectedPartList);
+        partTableSelected.setItems(associatedPartsList);
         selectedID.setCellValueFactory(new PropertyValueFactory<>("id"));
         selectedName.setCellValueFactory(new PropertyValueFactory<>("name"));
         selectedCPU.setCellValueFactory(new PropertyValueFactory<>("price"));
         selectedInvLvl.setCellValueFactory(new PropertyValueFactory<>("stock"));
+
     }
 }

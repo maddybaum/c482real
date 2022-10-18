@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Optional;
-
+/**Creating the controller for when a user would like to modify part*/
 public class modifyPartController {
     public RadioButton inHouseRadio;
     public ToggleGroup addPartTGroup;
@@ -26,17 +26,38 @@ public class modifyPartController {
     public Button modPartCancelBtn;
     public Label machineID;
 
-    //If inhouse radio button is selected then change text to machine ID
+    /**Method for if the product is an inhouse product, then set the text for the label to machine ID*/
     public void ModOnInHouse(ActionEvent actionEvent) {
         machineID.setText("Machine ID");
     }
-    //If outsourced radio button is selected then change text to Company ID
+    /**If outsourced radio button is selected then change text to Company ID*/
 
     public void ModOnOutsourced(ActionEvent actionEvent) {
         machineID.setText("Company ID");
 
     }
+    /**This method brings the values from the part that the user is wanting to modify so they are pre filled when the window opens*/
+    public void setInputs(Part part){
+        System.out.println(part.getName());
+        modPartIDinput.setText(Integer.toString(part.getId()));
+        modPartNameInput.setText(part.getName());
+        modPartInvInput.setText(Integer.toString(part.getStock()));
+        modPartPCInput.setText(Double.toString(part.getPrice()));
+        modPartMinInput.setText(Integer.toString(part.getMin()));
+        modPartMaxInput.setText(Integer.toString(part.getMax()));
 
+        if(part instanceof Outsourced){
+            outsourcedRadioModify.setSelected(true);
+            machineID.setText("Company ID");
+            modPartMachIdInput.setText(((Outsourced) part).getCompanyName());
+        }
+        if(part instanceof InHouse){
+            outsourcedRadioModify.setSelected(false);
+            machineID.setText("Machine ID");
+            modPartMachIdInput.setText(String.valueOf(((InHouse) part).getMachineID()));
+        }
+    }
+    /**This method allows the user to save the newly modified part*/
     public void saveModifyPart(ActionEvent actionEvent) {
         try {
             //Grab the selected part from the main screen and then use that same ID
@@ -64,13 +85,13 @@ public class modifyPartController {
             //If the inhouse radio button is selected, then we need to grab the integer for the machine ID
             if(inHouseRadio.isSelected()){
                 machineId = Integer.parseInt(modPartMachIdInput.getText());
-                Part partToAdd = new InHouse(id, newPartName, newPartInv, newPartCost, newPartMax, newPartMin, machineId);
+                Part partToAdd = new InHouse(id, newPartName, newPartCost, newPartInv,  newPartMax, newPartMin, machineId);
                 Inventory.deletePart(partToMod);
                 Inventory.addPart(partToAdd);
             }
             if(outsourcedRadioModify.isSelected()){
                 companyName = modPartMachIdInput.getText();
-                Part partToAdd = new Outsourced(id, newPartName, newPartInv, newPartCost, newPartMax, newPartMin, companyName);
+                Part partToAdd = new Outsourced(id, newPartName, newPartCost, newPartInv, newPartMax, newPartMin, companyName);
                 Inventory.deletePart(partToMod);
                 Inventory.addPart(partToAdd);
             }
@@ -93,7 +114,7 @@ public class modifyPartController {
             throw new RuntimeException(e);
         }
     }
-
+/**This method will return to the main page if the user clicks cancel*/
     public void onModifyCancelClicked(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
         Parent addPartModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));

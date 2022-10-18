@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static com.example.demo1.Inventory.partId;
-
+/**This class is the controller file for when a user has selected that they want to add a part*/
 public class addPartFormController implements Initializable {
     public RadioButton inHouseRadioAdd;
     public ToggleGroup addPartTGroup;
@@ -31,18 +31,17 @@ public class addPartFormController implements Initializable {
     public TextField addPartCompIdInput;
     public Button addPartSaveBtn;
     public Button addPartCancelBtn;
-
+/**Method for if user has selected the in house radio button, to change the label text to Machine ID*/
     public void onInHouseClicked(ActionEvent actionEvent) {
         addPartMachineIDText.setText("Machine ID");
     }
-
+/**Method if user selects outsourced radio button, to change the label text to company ID*/
     public void onOutsourcedClicked(ActionEvent actionEvent) {
         addPartMachineIDText.setText("Company ID");
     }
-
+/**Method to save the new part that the user has added*/
     public void saveNewPart(ActionEvent actionEvent) {
         try {
-            //Generate a random number btw 0-1 (which returns a double) and then multiply by 100 so it is an integer and then type cast to integer
 
             //Grab the input name
             String newPartName = addPartNameInput.getText();
@@ -65,13 +64,13 @@ public class addPartFormController implements Initializable {
             //If the inhouse radio button is selected, then we need to grab the integer for the machine ID
             if(inHouseRadioAdd.isSelected()) {
                 machineId = Integer.parseInt(addPartCompIdInput.getText());
-                InHouse partToAdd = new InHouse(partId, newPartName, newPartInv, newPartCost, newPartMax, newPartMin, machineId);
+                InHouse partToAdd = new InHouse(partId, newPartName, newPartCost, newPartInv, newPartMax, newPartMin, machineId);
                 partToAdd.setId(Inventory.getNewPartId());
                 Inventory.addPart(partToAdd);
             }
             if(outsourcedRadioAdd.isSelected()){
                 companyName = addPartMachIdInput.getText();
-                Part partToAdd = new Outsourced(partId, newPartName, newPartInv, newPartCost, newPartMax, newPartMin, companyName);
+                Part partToAdd = new Outsourced(partId, newPartName, newPartCost,  newPartInv, newPartMax, newPartMin, companyName);
                 partToAdd.setId(Inventory.getNewPartId());
                 Inventory.addPart(partToAdd);
             }
@@ -94,7 +93,7 @@ public class addPartFormController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
+/**If the user selects cancel from the add part page, this will take them back to the main page*/
     public void onAddCancelClicked(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
         Parent mainModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));

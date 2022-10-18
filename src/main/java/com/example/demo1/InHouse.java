@@ -1,19 +1,21 @@
 package com.example.demo1;
 
+/**In house class extends the part class but adds in the machineID attribute*/
+
 public class InHouse extends Part{
     private int machineID;
 
     public int getMachineID() {
         return machineID;
     }
-    /*Add machineID getter and setter*/
+    /**Add machineID getter and setter*/
 
     public void setMachineID(int machineID) {
         this.machineID = machineID;
     }
-
-    public InHouse(int id, String name, int inventory, double price, int max, int min, int machineId) {
-        super(id, name, inventory, price, max, min);
+    /**Constructor for in house parts*/
+    public InHouse(int id, String name, double price, int inventory,  int max, int min, int machineId) {
+        super(id, name, price, inventory, max, min);
 
 
     }

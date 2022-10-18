@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**This is the controller for the main screen when the application first opens*/
 public class MainScreenController implements Initializable {
     //We will need to grab the selected values in order to modify part and product. These will be static variables so we can use a getter to grab them and use in modifyPartController
 
@@ -46,26 +47,33 @@ public class MainScreenController implements Initializable {
 
     private ObservableList<Part> allParts = FXCollections.observableArrayList();
     private ObservableList<Product> allProducts = FXCollections.observableArrayList();
-
+/**When a user clicks the modify part button, this method will determine if they have selected a part to modify
+ * If they have then the modifyPart fxml file will populate
+ * If they have not selected a part yet then they will receive an alert*/
     public void modifyPart(ActionEvent actionEvent) throws IOException {
         //Grab currently selected part
         partToModify = (Part)partTable.getSelectionModel().getSelectedItem();
-        //Check if nothing is selected
-        if(partToModify == null){
+
+        if(partToModify == null) {
             Alert noValue = new Alert(Alert.AlertType.ERROR);
             noValue.setContentText("There is no value to modify");
             Optional<ButtonType> response = noValue.showAndWait();
-
-        } else {
-            Parent modifyPart = FXMLLoader.load(HelloApplication.class.getResource("modifyPart.fxml"));
-            Scene scene = new Scene(modifyPart);
-            Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-            window.setScene(scene);
-            window.show();
-
         }
-    }
 
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("modifyPart.fxml"));
+        loader.load();
+        modifyPartController mpc = loader.getController();
+        mpc.setInputs(partToModify);
+
+
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        Parent scene = loader.getRoot();
+        stage.setScene(new Scene(scene));
+        stage.show();
+    }
+/**This is the method that will be called when the user clicks the add button
+ * It will populate the addPartFormController */
     public void addPart(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
         Parent addPartModal = FXMLLoader.load(HelloApplication.class.getResource("addPartForm.fxml"));
@@ -78,7 +86,8 @@ public class MainScreenController implements Initializable {
         //show the modal
         modal.show();
     }
-
+/**If the user would like to search the parts that are being displayed on the main page,
+ * this method will be used*/
     public void searchParts(ActionEvent actionEvent) {
         //Grab text that was typed in search bar
         String searchedPart = partSearchBar.getText();
@@ -106,7 +115,9 @@ public class MainScreenController implements Initializable {
         }
 
     }
-
+/**If the user clicks on the delete button, this method will be called
+ * If they have not clicked on any part to delete, they will receive an alert telling them so
+ * Otherwise they will receive an alert asking if they are sure they would like to delete */
     public void deletePart(ActionEvent actionEvent) {
         //Setting functionality to delete a selected part. Need to type cast the selection to a Part object, and then build in methods to identify the already selected part in the table
         Part partToDelete = (Part)partTable.getSelectionModel().getSelectedItem();
@@ -130,7 +141,9 @@ public class MainScreenController implements Initializable {
         }
     }
 
-
+/**This will be the method called if the user clicks the modify button
+ * If they have not selected a product to modify, they will receive an alert telling them so
+ * Otherwise the modifyProduct fxml file will load, pre populated with the selected product*/
     public void modifyProduct(ActionEvent actionEvent) throws IOException {
         //Grab currently selected product
         Product productToModify = (Product)productTable.getSelectionModel().getSelectedItem();
@@ -139,17 +152,21 @@ public class MainScreenController implements Initializable {
             Alert noValue = new Alert(Alert.AlertType.ERROR);
             noValue.setContentText("There is no value to modify");
             Optional<ButtonType> response = noValue.showAndWait();
-        } else {
-            //load the modifyProduct fxml file
-            Parent modifyProduct = FXMLLoader.load(HelloApplication.class.getResource("modifyProduct.fxml"));
-            //set new scene with modifyproduct fxml
-            Scene scene = new Scene(modifyProduct);
-            Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-            window.setScene(scene);
-            window.show();
         }
-    }
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("modifyProduct.fxml"));
+        loader.load();
+        modifyProductController mprodc = loader.getController();
+        mprodc.setProdInputs(productToModify);
 
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        Parent scene = loader.getRoot();
+        stage.setScene(new Scene(scene));
+        stage.show();
+
+
+    }
+/**This is the method called if a user selects add on the product table. It will open the addProduct fxml window*/
     public void addProduct(ActionEvent actionEvent) throws IOException {
         //Grab the addProductForm fxml file
         Parent addProductModal = FXMLLoader.load((HelloApplication.class.getResource("addProduct.fxml")));
@@ -161,7 +178,8 @@ public class MainScreenController implements Initializable {
         //Open the window
         modal.show();
     }
-
+/** @return ObservableList of products
+ * This method allows users to use the search bar for products and will return a list of matching products*/
     public ObservableList searchProducts(ActionEvent actionEvent) {
         //Grab text that was typed in the search bar
         String searchedProduct = productSearchBar.getText();
@@ -187,7 +205,9 @@ public class MainScreenController implements Initializable {
         }
         return matchingProducts;
     }
-
+/**If a user clicks the delete button, this method will be called
+ * If they have not selected a product to delete, they will receive an error telling them so
+ * Otherwise this method will delete the product*/
     public void deleteProduct(ActionEvent actionEvent) {
         //Setting functionality to delete selected product. Need to type cast the selection to a Product and then use built in Java methods to identify which product (if any) is selected
         Product productToDelete = (Product)productTable.getSelectionModel().getSelectedItem();
@@ -203,19 +223,21 @@ public class MainScreenController implements Initializable {
             Inventory.deleteProduct(productToDelete);
         }
     }
-
+/**This will close the application if the user clicks cancel on the main page*/
     public void onExitButtonClicked(ActionEvent actionEvent) {
         System.exit(0);
     }
+    /**This will return the part that has been selected to modify*/
     public static Part getPartToModify() {
 
         return partToModify;
     }
+    /**This will return the product that has been selected to modify*/
     public static Product getProductToModify(){
         return productToModify;
     }
 
-    //Use initializable in the same way that is described in the tutorial video to import data into the table for basketball players
+    /**Use initializable in the same way that is described in the tutorial video to import data into the table for basketball players*/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Within the initializable method, set the part table content to be from the getAllParts() method in inventory

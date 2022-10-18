@@ -18,7 +18,7 @@ public class Inventory {
         return allProducts;
     }
 
-    /*Per UML, we need to create add methods for both lists. Java has built in Add method for lists*/
+    /**Per UML, we need to create add methods for both lists. Java has built in Add method for lists*/
 
     public static void addPart(Part part) {
         allParts.add(part);
@@ -28,8 +28,8 @@ public class Inventory {
         allProducts.add(product);
     }
 
-    /*We also need to add methods that will look up a part id in the allParts list and a product id in the allProducts list*/
-    /*The part search will return a part. It is a static method because it will be used in the same way for all parts, I will loop through the list of parts and match the functions argument to one in the list*/
+    /**We also need to add methods that will look up a part id in the allParts list and a product id in the allProducts list*/
+    /**The part search will return a part. It is a static method because it will be used in the same way for all parts, I will loop through the list of parts and match the functions argument to one in the list*/
 
     public static Part lookupPartById(int partId) {
         //loop through the parts
@@ -42,6 +42,7 @@ public class Inventory {
         //if there is no match then return null
         return null;
     }
+    /**Similar to the lookUpPartById method, this method will search fo r a product ID*/
     public static Product lookupProductById(int productId){
         //loop through products
         for (Product product : Inventory.getAllProducts()){
@@ -53,7 +54,7 @@ public class Inventory {
         //if there is no match return null
         return null;
     }
-
+/**Similar to methods above, this will look up part by name */
     public static Part lookupPartByName(String name){
         //loop through all the parts
         for (Part part : Inventory.getAllParts()){
@@ -65,6 +66,7 @@ public class Inventory {
         //if there is no match then return null
         return null;
     }
+    /**This method will look up a product by name*/
     public static Product lookupProductByName(String name){
         //loop through all the products
         for (Product product : Inventory.getAllProducts()){
@@ -76,7 +78,7 @@ public class Inventory {
         //otherwise return null
         return null;
     }
-    //Now we need to add methods to update part and product by taking in an index and what we want to update that index with
+    /**Now we need to add methods to update part and product by taking in an index and what we want to update that index with*/
     //Java lists have a method called set() which takes in an index and the new value and will update that
 
     public void updatePart(int index, Part selectedPart){
@@ -87,9 +89,9 @@ public class Inventory {
         //get the list of all products then set the specified index to the new selectedProduct
         allProducts.set(index, selectedProduct);
     }
-    //Now we need to create methods to delete a product or part. These will return boolean values, and will take in their respective part or product to be removed. If unsuccessful, will return false
+    /**Now we need to create methods to delete a product or part. These will return boolean values, and will take in their respective part or product to be removed. If unsuccessful, will return false
     //In order to do this and return a boolean, we will need to check if the allParts list contains the selectedPart, and then if it does we will use the built in remove method to delete it
-    //Java has a built in contains method that allows you to check if a value exists within a list. I will use this in my conditional statement to check if the selectedPart exists in the allParts list
+    //Java has a built in contains method that allows you to check if a value exists within a list. I will use this in my conditional statement to check if the selectedPart exists in the allParts list*/
     public static boolean deletePart(Part selectedPart){
         //check if selectedParts is in allParts list
         if(allParts.contains(selectedPart)){
@@ -103,7 +105,7 @@ public class Inventory {
 
     /*Follow same process for deleting a product
      */
-
+/**Similar to delete part listed above*/
     public static boolean deleteProduct(Product selectedProduct){
         //Check if allProducts contains selectedProduct
         if(allProducts.contains(selectedProduct)){
