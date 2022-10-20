@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import static com.example.demo1.Inventory.lookupPart;
+
 /**This is the controller for when a user has clicked to add a product and opened the addProductForm fxml file*/
 public class addProductController implements Initializable {
     //Use an observable list to hold the items that the user has selected for the list
@@ -44,31 +47,17 @@ public class addProductController implements Initializable {
     public Button addProdRemoveBtn;
     public Button addProdSaveBtn;
     public Button addProdCancelBtn;
-/**This method searched for a part based on what the user has type in*/
+/**@param actionEvent
+ * This method searched for a part based on what the user has type in*/
     public void searchForPart(ActionEvent actionEvent) {
         //Grab text that was typed in search bar
+
         String searchedPart = addProdSearch.getText();
-        //Grab all of the parts the inventory and put them in the partsList
-        ObservableList<Part> partsList = Inventory.getAllParts();
-        //Create empty list to store matching parts
-        ObservableList matchingParts = FXCollections.observableArrayList();
-        //loop through the parts in parts list
-        for(Part part : partsList){
-            //check if the part name and part id contains your search terms
-            if(part.getName().contains(searchedPart) || String.valueOf(part.getId()).contains(searchedPart)){
-                //if the name or ID contains search terms, then add it to the matching parts list
-                matchingParts.add(part);
-            }
-        }
-        partTableOptions.setItems(matchingParts);
-        //If there are no matching parts, the list size will be 0, so display alert that there are no matching parts
-        if(matchingParts.size() == 0){
-            Alert noSearch = new Alert(Alert.AlertType.ERROR);
-            noSearch.setContentText("There are no matches for your search terms");
-            Optional<ButtonType> response = noSearch.showAndWait();
-        }
+        partTableOptions.setItems((lookupPart(searchedPart)));
+
     }
-/**Method for adding a part and displaying it in the table*/
+/**@param actionEvent
+ * Method for adding a part and displaying it in the table*/
     public void addPart(ActionEvent actionEvent) {
         //Grab the currently selected part
         Part partToAdd = (Part) partTableOptions.getSelectionModel().getSelectedItem();
@@ -76,7 +65,8 @@ public class addProductController implements Initializable {
 
         //Display the list of parts in the table
     }
-/**Method to delete a part if the button is clicked*/
+/**@param actionEvent
+ * Method to delete a part if the button is clicked*/
     public void removeProduct(ActionEvent actionEvent) {
         //Grab the selected item from the parts the user has already selected
         Part partToDelete = (Part)partTableSelected.getSelectionModel().getSelectedItem();
@@ -92,10 +82,14 @@ public class addProductController implements Initializable {
         //Display the list of parts with the selected one removed
 
     }
-/**Once the user has filled in the input, this method will allow them to save the new product*/
-    public void saveAddProd(ActionEvent actionEvent) {
+/**@param actionEvent
+ * Once the user has filled in the input, this method will allow them to save the new product
+ * FUTURE ENHANCEMENT would be a feature that would mark whether all of the parts are in stock for the product that is being
+ * added. So when a user wants to add a product that needs the parts: string, ball and feather... if one or more of those is out
+ * of stock, then when they add the product the new product shows up in red or with some sort of alert to say that not all of the
+ * parts are currently in stock.*/
+    public void saveAddProd(ActionEvent actionEvent) throws IOException {
         try {
-            //Using method suggested in webinar to generate a random ID that will not overlap with others
             int id = (int)Math.random()*1000;
             //Grab all of the inputs from the user
             String name = addNameInput.getText();
@@ -110,37 +104,30 @@ public class addProductController implements Initializable {
                 Optional<ButtonType> response = minMax.showAndWait();
             }
             //Create a new product object with the values the user input
-            Product product = new Product(id, name, price, stock, max, min);
-            product.getAllAssociatedParts().addAll(associatedPartsList);
-            //Add new product to inventory
-            //Loop through the parts and use the addAssocPart method from product to add the parts
-            /*for(Part part : selectedPartList){
-                product.addAssociatedParts(part);
-            }*/
-            Inventory.addProduct(product);
-            //Inventory.getAllProducts();
+            else {
+                Product product = new Product(id, name, price, stock, max, min);
+                product.setId(Inventory.getNewProductId());
+                product.getAllAssociatedParts().addAll(associatedPartsList);
+                //Add new product to inventory
+                //Loop through the parts and use the addAssocPart method from product to add the parts
 
-            //return to main page
-            Parent mainModal = FXMLLoader.load(getClass().getResource("main.fxml"));
-            //set new scene with add part modal
-            Scene scene = new Scene(mainModal);
-            //set stage of the modal
-            Stage modal = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-            //put add part modal inside
-            modal.setScene(scene);
-            //show the modal
-            modal.show();
-        } catch (Exception e) {
-            Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setContentText(e.getMessage());
+                Inventory.addProduct(product);
 
-
-            //error.setContentText("There was an error adding product");
-            Optional<ButtonType> response = error.showAndWait();
-            return;
+                Parent mainModal = FXMLLoader.load(getClass().getResource("main.fxml"));
+                Scene scene = new Scene(mainModal);
+                Stage modal = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                modal.setScene(scene);
+                modal.show();
+            }
+        } catch (NumberFormatException e) {
+            Alert failure = new Alert(Alert.AlertType.ERROR);
+            failure.setContentText("Please make sure all values are correct");
+            failure.showAndWait();
         }
+
     }
-/**If the user selects cancel, this will bring them back to the main screen*/
+/**@param actionEvent
+ * If the user selects cancel, this will bring them back to the main screen*/
     public void addProdCancel(ActionEvent actionEvent) throws IOException {
         Parent mainModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));
         //set new scene with add part modal
@@ -152,7 +139,8 @@ public class addProductController implements Initializable {
         //show the modal
         modal.show();
     }
-/**Sets the values in the 2 tables on the addProduct page*/
+/**@param resourceBundle
+ * Sets the values in the 2 tables on the addProduct page*/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Put all of the parts that have been added in the options table
@@ -170,5 +158,35 @@ public class addProductController implements Initializable {
         selectedCPU.setCellValueFactory(new PropertyValueFactory<>("price"));
         selectedInvLvl.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
+    }
+/**@param actionEvent
+ * method to search parts by first searching if the search was an ID
+ * if not then searching if it was part of a part name*/
+    public void searchParts(ActionEvent actionEvent) {
+
+        String searchedPart = addProdSearch.getText();
+        if(searchedPart.isBlank()){
+            partTableOptions.setItems(Inventory.getAllParts());
+        }
+        //Grab all of the parts in teh inventory and put them in the partsList
+        try {
+            Part part = Inventory.lookupPart(Integer.parseInt(searchedPart));
+            if(part != null){
+                partTableOptions.getSelectionModel().select(part);
+            } else {
+                //Todo handle null part
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            ObservableList<Part> matchingParts = Inventory.lookupPart(searchedPart);
+            if(matchingParts.size() == 0){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                //finish alert
+                alert.showAndWait();
+            }
+            else {
+                partTableOptions.setItems(matchingParts);
+            }
+        }
     }
 }

@@ -26,17 +26,20 @@ public class modifyPartController {
     public Button modPartCancelBtn;
     public Label machineID;
 
-    /**Method for if the product is an inhouse product, then set the text for the label to machine ID*/
+    /**@param actionEvent
+     * Method for if the product is an inhouse product, then set the text for the label to machine ID*/
     public void ModOnInHouse(ActionEvent actionEvent) {
         machineID.setText("Machine ID");
     }
-    /**If outsourced radio button is selected then change text to Company ID*/
 
+    /**@param actionEvent
+     * If outsourced radio button is selected then change text to Company ID*/
     public void ModOnOutsourced(ActionEvent actionEvent) {
         machineID.setText("Company ID");
 
     }
-    /**This method brings the values from the part that the user is wanting to modify so they are pre filled when the window opens*/
+    /**@param part
+     * This method brings the values from the part that the user is wanting to modify so they are pre filled when the window opens*/
     public void setInputs(Part part){
         System.out.println(part.getName());
         modPartIDinput.setText(Integer.toString(part.getId()));
@@ -57,8 +60,9 @@ public class modifyPartController {
             modPartMachIdInput.setText(String.valueOf(((InHouse) part).getMachineID()));
         }
     }
-    /**This method allows the user to save the newly modified part*/
-    public void saveModifyPart(ActionEvent actionEvent) {
+    /**@param actionEvent
+     * This method allows the user to save the newly modified part*/
+    public void saveModifyPart(ActionEvent actionEvent) throws IOException {
         try {
             //Grab the selected part from the main screen and then use that same ID
             Part partToMod = MainScreenController.getPartToModify();
@@ -81,40 +85,41 @@ public class modifyPartController {
                 Alert minMax = new Alert(Alert.AlertType.ERROR);
                 minMax.setContentText("Your minimum is larger than your maximum");
                 Optional<ButtonType> response = minMax.showAndWait();
-            }
-            //If the inhouse radio button is selected, then we need to grab the integer for the machine ID
-            if(inHouseRadio.isSelected()){
-                machineId = Integer.parseInt(modPartMachIdInput.getText());
-                Part partToAdd = new InHouse(id, newPartName, newPartCost, newPartInv,  newPartMax, newPartMin, machineId);
-                Inventory.deletePart(partToMod);
-                Inventory.addPart(partToAdd);
-            }
-            if(outsourcedRadioModify.isSelected()){
-                companyName = modPartMachIdInput.getText();
-                Part partToAdd = new Outsourced(id, newPartName, newPartCost, newPartInv, newPartMax, newPartMin, companyName);
-                Inventory.deletePart(partToMod);
-                Inventory.addPart(partToAdd);
-            }
-            //Return to main window once part is added
+            } else {
+                //If the inhouse radio button is selected, then we need to grab the integer for the machine ID
+                if (inHouseRadio.isSelected()) {
+                    machineId = Integer.parseInt(modPartMachIdInput.getText());
+                    Part partToAdd = new InHouse(id, newPartName, newPartCost, newPartInv, newPartMax, newPartMin, machineId);
+                    Inventory.deletePart(partToMod);
+                    Inventory.addPart(partToAdd);
+                }
+                if (outsourcedRadioModify.isSelected()) {
+                    companyName = modPartMachIdInput.getText();
+                    Part partToAdd = new Outsourced(id, newPartName, newPartCost, newPartInv, newPartMax, newPartMin, companyName);
+                    Inventory.deletePart(partToMod);
+                    Inventory.addPart(partToAdd);
+                }
+                //Return to main window once part is added
 
-            //Grab the modal fxml file
-            Parent addPartModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));
-            //set new scene with add part modal
-            Scene scene = new Scene(addPartModal);
-            //set stage of the modal
-            Stage modal = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-            //put add part modal inside
-            modal.setScene(scene);
-            //show the modal
-            modal.show();
-        } catch (IOException e) {
-            Alert noValue = new Alert(Alert.AlertType.ERROR);
-            noValue.setContentText("Error adding part. Please check all values are correct");
-            Optional<ButtonType> response = noValue.showAndWait();
-            throw new RuntimeException(e);
+                //Grab the modal fxml file
+                Parent addPartModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));
+                //set new scene with add part modal
+                Scene scene = new Scene(addPartModal);
+                //set stage of the modal
+                Stage modal = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                //put add part modal inside
+                modal.setScene(scene);
+                //show the modal
+                modal.show();
+            }
+        } catch (NumberFormatException e) {
+            Alert failure = new Alert(Alert.AlertType.ERROR);
+            failure.setContentText("Error adding part. Please check all values are correct");
+            failure.showAndWait();
         }
     }
-/**This method will return to the main page if the user clicks cancel*/
+/**@param actionEvent
+ * This method will return to the main page if the user clicks cancel*/
     public void onModifyCancelClicked(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
         Parent addPartModal = FXMLLoader.load(HelloApplication.class.getResource("main.fxml"));

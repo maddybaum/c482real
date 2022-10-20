@@ -14,8 +14,8 @@ public class InHouse extends Part{
         this.machineID = machineID;
     }
     /**Constructor for in house parts*/
-    public InHouse(int id, String name, double price, int inventory,  int max, int min, int machineId) {
-        super(id, name, price, inventory, max, min);
+    public InHouse(int id, String name, double price, int inventory,  int min, int max, int machineId) {
+        super(id, name, price, inventory, min, max);
 
 
     }

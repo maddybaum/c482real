@@ -47,7 +47,13 @@ public class MainScreenController implements Initializable {
 
     private ObservableList<Part> allParts = FXCollections.observableArrayList();
     private ObservableList<Product> allProducts = FXCollections.observableArrayList();
-/**When a user clicks the modify part button, this method will determine if they have selected a part to modify
+
+    public static void setProductToModify(Product productToModify) {
+        MainScreenController.productToModify = productToModify;
+    }
+
+    /**@param actionEvent
+     * When a user clicks the modify part button, this method will determine if they have selected a part to modify
  * If they have then the modifyPart fxml file will populate
  * If they have not selected a part yet then they will receive an alert*/
     public void modifyPart(ActionEvent actionEvent) throws IOException {
@@ -72,7 +78,8 @@ public class MainScreenController implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
     }
-/**This is the method that will be called when the user clicks the add button
+/**@param actionEvent
+ * This is the method that will be called when the user clicks the add button
  * It will populate the addPartFormController */
     public void addPart(ActionEvent actionEvent) throws IOException {
         //Grab the modal fxml file
@@ -86,36 +93,43 @@ public class MainScreenController implements Initializable {
         //show the modal
         modal.show();
     }
-/**If the user would like to search the parts that are being displayed on the main page,
+/**@param actionEvent
+ * If the user would like to search the parts that are being displayed on the main page,
  * this method will be used*/
     public void searchParts(ActionEvent actionEvent) {
         //Grab text that was typed in search bar
         String searchedPart = partSearchBar.getText();
-        //Grab all of the parts in teh inventory and put them in the partsList
-        ObservableList<Part> partsList = Inventory.getAllParts();
-        //Create empty list to store matching parts
-        ObservableList matchingParts = FXCollections.observableArrayList();
-        //loop through the parts in parts list
-        for(Part part : partsList){
-            //check if the part name and part id contains your search terms
-            if(part.getName().contains(searchedPart) || String.valueOf(part.getId()).contains(searchedPart)){
-                //if the name or ID contains search terms, then add it to the matching parts list
-                matchingParts.add(part);
-
-            }
+        if(searchedPart.isBlank()){
+            partTable.setItems(Inventory.getAllParts());
         }
-        //display all of the matching parts in the table
-        partTable.setItems(matchingParts);
-        //If there are no matching parts, the list size will be 0, so display alert that there are no matching parts
-        if(matchingParts.size() == 0){
-            Alert noValue = new Alert(Alert.AlertType.ERROR);
-            noValue.setContentText("There no values matching your search terms");
-            Optional<ButtonType> response = noValue.showAndWait();
-            ;
+        //Grab all of the parts in teh inventory and put them in the partsList
+        try {
+            Part part = Inventory.lookupPart(Integer.parseInt(searchedPart));
+            if(part != null){
+                partTable.getSelectionModel().select(part);
+            } else {
+                //Todo handle null part
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            ObservableList<Part> matchingParts = Inventory.lookupPart(searchedPart);
+            if(matchingParts.size() == 0){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setContentText("There are no matches for your search");
+                //finish alert
+                alert.showAndWait();
+            }
+            else {
+                partTable.setItems(matchingParts);
+            }
         }
 
     }
-/**If the user clicks on the delete button, this method will be called
+
+
+/**@param actionEvent
+ *
+ * If the user clicks on the delete button, this method will be called
  * If they have not clicked on any part to delete, they will receive an alert telling them so
  * Otherwise they will receive an alert asking if they are sure they would like to delete */
     public void deletePart(ActionEvent actionEvent) {
@@ -141,12 +155,13 @@ public class MainScreenController implements Initializable {
         }
     }
 
-/**This will be the method called if the user clicks the modify button
+/**@param actionEvent
+ * This will be the method called if the user clicks the modify button
  * If they have not selected a product to modify, they will receive an alert telling them so
  * Otherwise the modifyProduct fxml file will load, pre populated with the selected product*/
     public void modifyProduct(ActionEvent actionEvent) throws IOException {
         //Grab currently selected product
-        Product productToModify = (Product)productTable.getSelectionModel().getSelectedItem();
+        productToModify = (Product)productTable.getSelectionModel().getSelectedItem();
         //Check if no product was selected
         if(productToModify == null){
             Alert noValue = new Alert(Alert.AlertType.ERROR);
@@ -166,7 +181,8 @@ public class MainScreenController implements Initializable {
 
 
     }
-/**This is the method called if a user selects add on the product table. It will open the addProduct fxml window*/
+/**@param actionEvent
+ * This is the method called if a user selects add on the product table. It will open the addProduct fxml window*/
     public void addProduct(ActionEvent actionEvent) throws IOException {
         //Grab the addProductForm fxml file
         Parent addProductModal = FXMLLoader.load((HelloApplication.class.getResource("addProduct.fxml")));
@@ -205,7 +221,8 @@ public class MainScreenController implements Initializable {
         }
         return matchingProducts;
     }
-/**If a user clicks the delete button, this method will be called
+/**@param actionEvent
+ * If a user clicks the delete button, this method will be called
  * If they have not selected a product to delete, they will receive an error telling them so
  * Otherwise this method will delete the product*/
     public void deleteProduct(ActionEvent actionEvent) {
@@ -223,21 +240,26 @@ public class MainScreenController implements Initializable {
             Inventory.deleteProduct(productToDelete);
         }
     }
-/**This will close the application if the user clicks cancel on the main page*/
+/**@param actionEvent
+ * This will close the application if the user clicks cancel on the main page*/
     public void onExitButtonClicked(ActionEvent actionEvent) {
         System.exit(0);
     }
-    /**This will return the part that has been selected to modify*/
+    /**@param actionEvent
+     * This will return the part that has been selected to modify*/
     public static Part getPartToModify() {
 
         return partToModify;
     }
-    /**This will return the product that has been selected to modify*/
+
+    /**@return Product
+     * This will return the product that has been selected to modify*/
     public static Product getProductToModify(){
         return productToModify;
     }
 
-    /**Use initializable in the same way that is described in the tutorial video to import data into the table for basketball players*/
+    /**@param resourceBundle @param url
+     * Use initializable in the same way that is described in the tutorial video to import data into the table for basketball players. Initializing page and values into table*/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Within the initializable method, set the part table content to be from the getAllParts() method in inventory

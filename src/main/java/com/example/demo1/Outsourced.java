@@ -20,8 +20,8 @@ public class Outsourced extends Part{
     }
 
     /**This is the constructor for outsourced products. */
-    public Outsourced(int id, String name, double price, int inventory, int max, int min, String companyName) {
-        super(id, name, price, inventory, max, min);
+    public Outsourced(int id, String name, double price, int inventory, int min, int max, String companyName) {
+        super(id, name, price, inventory, min, max);
         this.companyName = companyName;
     }
 }
